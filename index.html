@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css"><link rel="stylesheet" href="css/L.Control.Locate.min.css">
+        <link rel="stylesheet" href="css/qgis2web.css"><link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/leaflet-control-geocoder.Geocoder.css">
+        <link rel="stylesheet" href="css/leaflet-measure.css">
+        <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        </style>
+        <title></title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script><script src="js/L.Control.Locate.min.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/leaflet-control-geocoder.Geocoder.js"></script>
+        <script src="js/leaflet-measure.js"></script>
+        <script src="data/Rabi_Crop_1.js"></script>
+        <script src="data/Zaid_Crop_2.js"></script>
+        <script src="data/Kharif_Crop_3.js"></script>
+        <script src="data/Crop_Class_4.js"></script>
+        <script>
+        var highlightLayer;
+        function highlightFeature(e) {
+            highlightLayer = e.target;
+
+            if (e.target.feature.geometry.type === 'LineString') {
+              highlightLayer.setStyle({
+                color: '#ffff00',
+              });
+            } else {
+              highlightLayer.setStyle({
+                fillColor: '#ffff00',
+                fillOpacity: 1
+              });
+            }
+            highlightLayer.openPopup();
+        }
+        var map = L.map('map', {
+            zoomControl:true, maxZoom:28, minZoom:1
+        }).fitBounds([[38.10974834849034,20.863101385152042],[38.65314795706162,21.645988965542095]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        function removeEmptyRowsFromPopupContent(content, feature) {
+         var tempDiv = document.createElement('div');
+         tempDiv.innerHTML = content;
+         var rows = tempDiv.querySelectorAll('tr');
+         for (var i = 0; i < rows.length; i++) {
+             var td = rows[i].querySelector('td.visible-with-data');
+             var key = td ? td.id : '';
+             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                 rows[i].parentNode.removeChild(rows[i]);
+             }
+         }
+         return tempDiv.innerHTML;
+        }
+        L.control.locate({locateOptions: {maxZoom: 19}}).addTo(map);
+        var measureControl = new L.Control.Measure({
+            position: 'topleft',
+            primaryLengthUnit: 'meters',
+            secondaryLengthUnit: 'kilometers',
+            primaryAreaUnit: 'sqmeters',
+            secondaryAreaUnit: 'hectares'
+        });
+        measureControl.addTo(map);
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0]
+        .innerHTML = '';
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0]
+        .className += ' fas fa-ruler';
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+        }
+        map.createPane('pane_OpenStreetMap_0');
+        map.getPane('pane_OpenStreetMap_0').style.zIndex = 400;
+        var layer_OpenStreetMap_0 = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            pane: 'pane_OpenStreetMap_0',
+            opacity: 1.0,
+            attribution: '',
+            minZoom: 1,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 19
+        });
+        layer_OpenStreetMap_0;
+        map.addLayer(layer_OpenStreetMap_0);
+        function pop_Rabi_Crop_1(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (i in e.target._eventParents) {
+                        e.target._eventParents[i].resetStyle(e.target);
+                    }
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['gridcode'] !== null ? autolinker.link(feature.properties['gridcode'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Category</th>\
+                        <td>' + (feature.properties['Category'] !== null ? autolinker.link(feature.properties['Category'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+            var popup = layer.getPopup();
+            var content = popup.getContent();
+            var updatedContent = removeEmptyRowsFromPopupContent(content, feature);
+            popup.setContent(updatedContent);
+        }
+
+        function style_Rabi_Crop_1_0(feature) {
+            switch(String(feature.properties['Category'])) {
+                case 'High':
+                    return {
+                pane: 'pane_Rabi_Crop_1',
+                stroke: false, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(143,225,110,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Low':
+                    return {
+                pane: 'pane_Rabi_Crop_1',
+                stroke: false, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(222,168,19,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Moderate':
+                    return {
+                pane: 'pane_Rabi_Crop_1',
+                stroke: false, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(246,244,86,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Very High':
+                    return {
+                pane: 'pane_Rabi_Crop_1',
+                stroke: false, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(51,160,44,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Very Low':
+                    return {
+                pane: 'pane_Rabi_Crop_1',
+                stroke: false, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(219,29,29,1.0)',
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_Rabi_Crop_1');
+        map.getPane('pane_Rabi_Crop_1').style.zIndex = 401;
+        map.getPane('pane_Rabi_Crop_1').style['mix-blend-mode'] = 'normal';
+        var layer_Rabi_Crop_1 = new L.geoJson(json_Rabi_Crop_1, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Rabi_Crop_1',
+            layerName: 'layer_Rabi_Crop_1',
+            pane: 'pane_Rabi_Crop_1',
+            onEachFeature: pop_Rabi_Crop_1,
+            style: style_Rabi_Crop_1_0,
+        });
+        bounds_group.addLayer(layer_Rabi_Crop_1);
+        map.addLayer(layer_Rabi_Crop_1);
+        function pop_Zaid_Crop_2(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (i in e.target._eventParents) {
+                        e.target._eventParents[i].resetStyle(e.target);
+                    }
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['gridcode'] !== null ? autolinker.link(feature.properties['gridcode'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Category</th>\
+                        <td>' + (feature.properties['Category'] !== null ? autolinker.link(feature.properties['Category'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+            var popup = layer.getPopup();
+            var content = popup.getContent();
+            var updatedContent = removeEmptyRowsFromPopupContent(content, feature);
+            popup.setContent(updatedContent);
+        }
+
+        function style_Zaid_Crop_2_0(feature) {
+            switch(String(feature.properties['Category'])) {
+                case 'High':
+                    return {
+                pane: 'pane_Zaid_Crop_2',
+                stroke: false, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(143,225,110,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Low':
+                    return {
+                pane: 'pane_Zaid_Crop_2',
+                stroke: false, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(222,168,19,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Moderate':
+                    return {
+                pane: 'pane_Zaid_Crop_2',
+                stroke: false, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(246,244,86,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Very High':
+                    return {
+                pane: 'pane_Zaid_Crop_2',
+                stroke: false, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(51,160,44,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Very Low':
+                    return {
+                pane: 'pane_Zaid_Crop_2',
+                stroke: false, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(219,29,29,1.0)',
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_Zaid_Crop_2');
+        map.getPane('pane_Zaid_Crop_2').style.zIndex = 402;
+        map.getPane('pane_Zaid_Crop_2').style['mix-blend-mode'] = 'normal';
+        var layer_Zaid_Crop_2 = new L.geoJson(json_Zaid_Crop_2, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Zaid_Crop_2',
+            layerName: 'layer_Zaid_Crop_2',
+            pane: 'pane_Zaid_Crop_2',
+            onEachFeature: pop_Zaid_Crop_2,
+            style: style_Zaid_Crop_2_0,
+        });
+        bounds_group.addLayer(layer_Zaid_Crop_2);
+        map.addLayer(layer_Zaid_Crop_2);
+        function pop_Kharif_Crop_3(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (i in e.target._eventParents) {
+                        e.target._eventParents[i].resetStyle(e.target);
+                    }
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['gridcode'] !== null ? autolinker.link(feature.properties['gridcode'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Category</th>\
+                        <td>' + (feature.properties['Category'] !== null ? autolinker.link(feature.properties['Category'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+            var popup = layer.getPopup();
+            var content = popup.getContent();
+            var updatedContent = removeEmptyRowsFromPopupContent(content, feature);
+            popup.setContent(updatedContent);
+        }
+
+        function style_Kharif_Crop_3_0(feature) {
+            switch(String(feature.properties['Category'])) {
+                case 'High':
+                    return {
+                pane: 'pane_Kharif_Crop_3',
+                stroke: false, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(143,225,110,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Low':
+                    return {
+                pane: 'pane_Kharif_Crop_3',
+                stroke: false, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(222,168,19,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Moderate':
+                    return {
+                pane: 'pane_Kharif_Crop_3',
+                stroke: false, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(246,244,86,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Very High':
+                    return {
+                pane: 'pane_Kharif_Crop_3',
+                stroke: false, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(51,160,44,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Very Low':
+                    return {
+                pane: 'pane_Kharif_Crop_3',
+                stroke: false, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(219,29,29,1.0)',
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_Kharif_Crop_3');
+        map.getPane('pane_Kharif_Crop_3').style.zIndex = 403;
+        map.getPane('pane_Kharif_Crop_3').style['mix-blend-mode'] = 'normal';
+        var layer_Kharif_Crop_3 = new L.geoJson(json_Kharif_Crop_3, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Kharif_Crop_3',
+            layerName: 'layer_Kharif_Crop_3',
+            pane: 'pane_Kharif_Crop_3',
+            onEachFeature: pop_Kharif_Crop_3,
+            style: style_Kharif_Crop_3_0,
+        });
+        bounds_group.addLayer(layer_Kharif_Crop_3);
+        map.addLayer(layer_Kharif_Crop_3);
+        function pop_Crop_Class_4(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (i in e.target._eventParents) {
+                        e.target._eventParents[i].resetStyle(e.target);
+                    }
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['gridcode'] !== null ? autolinker.link(feature.properties['gridcode'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Category</th>\
+                        <td>' + (feature.properties['Category'] !== null ? autolinker.link(feature.properties['Category'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+            var popup = layer.getPopup();
+            var content = popup.getContent();
+            var updatedContent = removeEmptyRowsFromPopupContent(content, feature);
+            popup.setContent(updatedContent);
+        }
+
+        function style_Crop_Class_4_0(feature) {
+            switch(String(feature.properties['Category'])) {
+                case 'Die Crop':
+                    return {
+                pane: 'pane_Crop_Class_4',
+                stroke: false, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(246,244,86,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Mono Crop':
+                    return {
+                pane: 'pane_Crop_Class_4',
+                stroke: false, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(220,61,40,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Tri Crop':
+                    return {
+                pane: 'pane_Crop_Class_4',
+                stroke: false, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(51,160,44,1.0)',
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_Crop_Class_4');
+        map.getPane('pane_Crop_Class_4').style.zIndex = 404;
+        map.getPane('pane_Crop_Class_4').style['mix-blend-mode'] = 'normal';
+        var layer_Crop_Class_4 = new L.geoJson(json_Crop_Class_4, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Crop_Class_4',
+            layerName: 'layer_Crop_Class_4',
+            pane: 'pane_Crop_Class_4',
+            onEachFeature: pop_Crop_Class_4,
+            style: style_Crop_Class_4_0,
+        });
+        bounds_group.addLayer(layer_Crop_Class_4);
+        map.addLayer(layer_Crop_Class_4);
+        var osmGeocoder = new L.Control.Geocoder({
+            collapsed: true,
+            position: 'topleft',
+            text: 'Search',
+            title: 'Testing'
+        }).addTo(map);
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .className += ' fa fa-search';
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .title += 'Search for a place';
+        var baseMaps = {};
+        L.control.layers(baseMaps,{'Crop_Class<br /><table><tr><td style="text-align: center;"><img src="legend/Crop_Class_4_DieCrop0.png" /></td><td>Die Crop</td></tr><tr><td style="text-align: center;"><img src="legend/Crop_Class_4_MonoCrop1.png" /></td><td>Mono Crop</td></tr><tr><td style="text-align: center;"><img src="legend/Crop_Class_4_TriCrop2.png" /></td><td>Tri Crop</td></tr></table>': layer_Crop_Class_4,'Kharif_Crop<br /><table><tr><td style="text-align: center;"><img src="legend/Kharif_Crop_3_High0.png" /></td><td>High</td></tr><tr><td style="text-align: center;"><img src="legend/Kharif_Crop_3_Low1.png" /></td><td>Low</td></tr><tr><td style="text-align: center;"><img src="legend/Kharif_Crop_3_Moderate2.png" /></td><td>Moderate</td></tr><tr><td style="text-align: center;"><img src="legend/Kharif_Crop_3_VeryHigh3.png" /></td><td>Very High</td></tr><tr><td style="text-align: center;"><img src="legend/Kharif_Crop_3_VeryLow4.png" /></td><td>Very Low</td></tr></table>': layer_Kharif_Crop_3,'Zaid_Crop<br /><table><tr><td style="text-align: center;"><img src="legend/Zaid_Crop_2_High0.png" /></td><td>High</td></tr><tr><td style="text-align: center;"><img src="legend/Zaid_Crop_2_Low1.png" /></td><td>Low</td></tr><tr><td style="text-align: center;"><img src="legend/Zaid_Crop_2_Moderate2.png" /></td><td>Moderate</td></tr><tr><td style="text-align: center;"><img src="legend/Zaid_Crop_2_VeryHigh3.png" /></td><td>Very High</td></tr><tr><td style="text-align: center;"><img src="legend/Zaid_Crop_2_VeryLow4.png" /></td><td>Very Low</td></tr></table>': layer_Zaid_Crop_2,'Rabi_Crop<br /><table><tr><td style="text-align: center;"><img src="legend/Rabi_Crop_1_High0.png" /></td><td>High</td></tr><tr><td style="text-align: center;"><img src="legend/Rabi_Crop_1_Low1.png" /></td><td>Low</td></tr><tr><td style="text-align: center;"><img src="legend/Rabi_Crop_1_Moderate2.png" /></td><td>Moderate</td></tr><tr><td style="text-align: center;"><img src="legend/Rabi_Crop_1_VeryHigh3.png" /></td><td>Very High</td></tr><tr><td style="text-align: center;"><img src="legend/Rabi_Crop_1_VeryLow4.png" /></td><td>Very Low</td></tr></table>': layer_Rabi_Crop_1,"OpenStreetMap": layer_OpenStreetMap_0,}).addTo(map);
+        setBounds();
+        </script>
+    </body>
+</html>
